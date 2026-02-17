@@ -14,20 +14,25 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: linear-gradient(160deg, #0f172a, #1e293b);
-  color: #ffffff;
+  color: lightgreen;
 }
 
 header {
   text-align: center;
   padding: 20px;
-  font-size: 25px;
+  font-size: 27px;
   font-weight: bold;
+  background: lightblue;
+  color: blue;
+  margin: 5px;
 }
 
 .container {
   padding: 15px;
   max-width: 500px;
   margin: auto;
+  border: 1px solid white;
+  border-radius: 4px;
 }
 
 .categoria {
@@ -183,7 +188,10 @@ header {
     <button onclick="adicionarLink()">Adicionar</button>
   </div>
 </div>
-
+<footer>
+  © 2025 Leonildo.Neumann 🚀
+</footer>
+  
 <script>
 let dados = JSON.parse(localStorage.getItem("hubApps")) || {};
 let editMode = false;
@@ -308,3 +316,4 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
