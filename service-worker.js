@@ -1,4 +1,4 @@
-const CACHE_NAME = "hub-cache-v1";
+const CACHE_NAME = "hub-cache-v2"; // ⚠️ Sempre aumente a versão aqui
 
 const urlsToCache = [
   "./",
@@ -7,15 +7,35 @@ const urlsToCache = [
 ];
 
 self.addEventListener("install", event => {
+  self.skipWaiting(); // força ativação imediata
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
 });
 
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache); // remove cache antigo
+          }
+        })
+      );
+    })
+  );
+
+  return self.clients.claim();
+});
+
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
   );
 });
+
+
