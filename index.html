@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meus Links Favoritos</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(160deg, #0f172a, #1e293b);
+  color: #ffffff;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.container {
+  padding: 15px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.categoria {
+  margin-bottom: 30px;
+}
+
+.categoria h2 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  opacity: 0.9;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.app {
+  text-align: center;
+  position: relative;
+  font-size: 13px;
+}
+
+.icon-box {
+  width: 70px;
+  height: 70px;
+  margin: auto;
+  border-radius: 22px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+  transition: transform 0.2s;
+}
+
+.icon-box img {
+  width: 45px;
+  height: 45px;
+}
+
+.app-name {
+  margin-top: 8px;
+  color: yellow;
+  font-weight: 500;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+
+.delete-btn {
+  position: absolute;
+  top: -6px;
+  right: 8px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.edit-mode .delete-btn {
+  display: flex;
+}
+
+.edit-mode .icon-box {
+  animation: wiggle 0.3s infinite alternate;
+}
+
+@keyframes wiggle {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(2deg); }
+}
+
+/* Botão flutuante */
+.fab {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  background: #3b82f6;
+  border-radius: 50%;
+  font-size: 30px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 350px;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 10px;
+  border: none;
+}
+
+.modal-content button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>📱 Meus Links Favoritos</header>
+<div class="container">
+  <div id="linksContainer"></div>
+</div>
+
+<!-- Botão + -->
+<div class="fab" onclick="abrirModal()">+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <input type="text" id="categoriaInput" placeholder="Categoria">
+    <input type="text" id="nomeInput" placeholder="Nome do App">
+    <input type="url" id="urlInput" placeholder="https://site.com">
+    <button onclick="adicionarLink()">Adicionar</button>
+  </div>
+</div>
+
+<script>
+let dados = JSON.parse(localStorage.getItem("hubApps")) || {};
+let editMode = false;
+let pressTimer;
+
+function salvar() {
+  localStorage.setItem("hubApps", JSON.stringify(dados));
+}
+
+function extrairDominio(url) {
+  try { return new URL(url).hostname; }
+  catch { return ""; }
+}
+
+function renderizar() {
+  const container = document.getElementById("linksContainer");
+  container.innerHTML = "";
+
+  for (let categoria in dados) {
+    const divCategoria = document.createElement("div");
+    divCategoria.className = "categoria";
+
+    const titulo = document.createElement("h2");
+    titulo.textContent = categoria;
+    divCategoria.appendChild(titulo);
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    dados[categoria].forEach((item, index) => {
+      const dominio = extrairDominio(item.url);
+      const favicon = `https://www.google.com/s2/favicons?sz=128&domain=${dominio}`;
+
+      const app = document.createElement("div");
+      app.className = "app";
+
+      app.innerHTML = `
+        <div class="delete-btn" onclick="removerLink('${categoria}', ${index})">✕</div>
+        <a href="${item.url}" target="_blank">
+          <div class="icon-box">
+            <img src="${favicon}" 
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png'">
+          </div>
+          <div class="app-name">${item.nome}</div>
+        </a>
+      `;
+
+      // Pressionar e segurar
+      app.addEventListener("mousedown", iniciarPress);
+      app.addEventListener("touchstart", iniciarPress);
+
+      app.addEventListener("mouseup", cancelarPress);
+      app.addEventListener("mouseleave", cancelarPress);
+      app.addEventListener("touchend", cancelarPress);
+
+      grid.appendChild(app);
+    });
+
+    divCategoria.appendChild(grid);
+    container.appendChild(divCategoria);
+  }
+}
+
+function iniciarPress() {
+  pressTimer = setTimeout(() => {
+    document.body.classList.add("edit-mode");
+    editMode = true;
+  }, 700);
+}
+
+function cancelarPress() {
+  clearTimeout(pressTimer);
+}
+
+function removerLink(categoria, index) {
+  dados[categoria].splice(index, 1);
+  if (dados[categoria].length === 0) delete dados[categoria];
+  salvar();
+  renderizar();
+}
+
+function abrirModal() {
+  document.getElementById("modal").style.display = "flex";
+}
+
+function adicionarLink() {
+  const categoria = categoriaInput.value.trim();
+  const nome = nomeInput.value.trim();
+  const url = urlInput.value.trim();
+
+  if (!categoria || !nome || !url) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  if (!dados[categoria]) dados[categoria] = [];
+  dados[categoria].push({ nome, url });
+
+  salvar();
+  renderizar();
+
+  modal.style.display = "none";
+  categoriaInput.value = "";
+  nomeInput.value = "";
+  urlInput.value = "";
+}
+
+// Sair do modo edição ao tocar fora
+document.addEventListener("click", (e) => {
+  if (editMode && !e.target.closest(".app")) {
+    document.body.classList.remove("edit-mode");
+    editMode = false;
+  }
+});
+
+renderizar();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
+</body>
+</html>
