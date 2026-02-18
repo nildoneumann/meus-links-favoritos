@@ -18,7 +18,7 @@ body {
 
 header {
   text-align: center;
-  padding: 20px;
+  padding: 15px 20px;
   font-size: 27px;
   font-weight: bold;
   color: white;
@@ -170,8 +170,27 @@ header {
   text-align: center;
   padding: 8px 15px;
   font-size: 12px;
-  opacity: 0.6;
 }
+  .edit-btn {
+  position: absolute;
+  bottom: -9px;
+  right: -8px;
+  background: white;
+  color: white;
+  border-radius: 50%;
+  font-size: 17px;
+  width: 30px;
+  height: 30px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.edit-mode .edit-btn {
+  display: flex;
+}
+
 
 </style>
 </head>
@@ -202,6 +221,7 @@ header {
 let dados = JSON.parse(localStorage.getItem("hubApps")) || {};
 let editMode = false;
 let pressTimer;
+let editando = null;
 
 function salvar() {
   localStorage.setItem("hubApps", JSON.stringify(dados));
@@ -236,6 +256,7 @@ function renderizar() {
 
       app.innerHTML = `
         <div class="delete-btn" onclick="removerLink('${categoria}', ${index})">✕</div>
+        <div class="edit-btn" onclick="editarLink('${categoria}', ${index})">✏️</div>
         <a href="${item.url}" target="_blank">
           <div class="icon-box">
             <img src="${favicon}" 
@@ -245,10 +266,8 @@ function renderizar() {
         </a>
       `;
 
-      // Pressionar e segurar
       app.addEventListener("mousedown", iniciarPress);
       app.addEventListener("touchstart", iniciarPress);
-
       app.addEventListener("mouseup", cancelarPress);
       app.addEventListener("mouseleave", cancelarPress);
       app.addEventListener("touchend", cancelarPress);
@@ -279,6 +298,19 @@ function removerLink(categoria, index) {
   renderizar();
 }
 
+function editarLink(categoria, index) {
+  const item = dados[categoria][index];
+
+  categoriaInput.value = categoria;
+  nomeInput.value = item.nome;
+  urlInput.value = item.url;
+
+  editando = { categoria, index };
+
+  document.querySelector(".modal-content button").textContent = "Salvar alterações";
+  abrirModal();
+}
+
 function abrirModal() {
   document.getElementById("modal").style.display = "flex";
 }
@@ -293,8 +325,18 @@ function adicionarLink() {
     return;
   }
 
-  if (!dados[categoria]) dados[categoria] = [];
-  dados[categoria].push({ nome, url });
+  if (editando) {
+    dados[editando.categoria].splice(editando.index, 1);
+
+    if (!dados[categoria]) dados[categoria] = [];
+    dados[categoria].push({ nome, url });
+
+    editando = null;
+    document.querySelector(".modal-content button").textContent = "Adicionar";
+  } else {
+    if (!dados[categoria]) dados[categoria] = [];
+    dados[categoria].push({ nome, url });
+  }
 
   salvar();
   renderizar();
@@ -305,7 +347,6 @@ function adicionarLink() {
   urlInput.value = "";
 }
 
-// Sair do modo edição ao tocar fora
 document.addEventListener("click", (e) => {
   if (editMode && !e.target.closest(".app")) {
     document.body.classList.remove("edit-mode");
@@ -314,14 +355,12 @@ document.addEventListener("click", (e) => {
 });
 
 renderizar();
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
 </script>
+
 
 </body>
 </html>
+
 
 
 
