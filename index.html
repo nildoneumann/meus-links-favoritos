@@ -8,7 +8,6 @@
 <meta name="theme-color" content="#0f172a">
 <link rel="apple-touch-icon" href="icon-192.png">
 
-
 <style>
 body {
   margin: 0;
@@ -22,11 +21,11 @@ header {
   padding: 20px;
   font-size: 27px;
   font-weight: bold;
-  background: lightblue;
-  color: blue;
-  margin: 6px 8px 0px 8px;
-  border-radius: 6px;
-  border: 2px solid yellow;
+  color: white;
+  margin: 6px 10px 0px 10px;
+  border-radius: 10px;
+  border: 3px solid yellow;
+  font-family: Times New Roman;
 }
 
 .container {
@@ -37,12 +36,12 @@ header {
 }
 
 .categoria {
-  margin-bottom: 13px;
+  margin-bottom: 20px;
 }
 
 .categoria h2 {
   font-size: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   opacity: 0.9;
 }
 
@@ -72,8 +71,8 @@ header {
 }
 
 .icon-box img {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
 }
 
 .app-name {
@@ -85,14 +84,14 @@ header {
 
 .delete-btn {
   position: absolute;
-  top: -6px;
-  right: 8px;
+  top: -13px;
+  right: -12px;
   background: #ef4444;
   color: white;
   border-radius: 50%;
-  font-size: 12px;
-  width: 20px;
-  height: 20px;
+  font-size: 18px;
+  width: 30px;
+  height: 30px;
   display: none;
   align-items: center;
   justify-content: center;
@@ -169,7 +168,7 @@ header {
 }
   footer {
   text-align: center;
-  padding: 15px;
+  padding: 8px 15px;
   font-size: 12px;
   opacity: 0.6;
 }
@@ -177,9 +176,10 @@ header {
 </style>
 </head>
 
-<body>
-<label for="nome" style="font-size: 8px; color:yellow; margin-left: 20px">© 2026 Leonildo.Neumann</label>
-<header>📱 Meus Links Favoritos</header>
+<body> 
+<label style="font-size: 8px; color:yellow; margin-left: 20px">© 2026 Leonildo.Neumann</label>
+<header>🔗 Meus Links Favoritos</header>
+<footer>Seus links ficam salvos neste dispositivo 🚀</footer> 
 <div class="container">
   <div id="linksContainer"></div>
 </div>
@@ -196,7 +196,7 @@ header {
     <button onclick="adicionarLink()">Adicionar</button>
   </div>
 </div>
-<footer>Seus links ficam salvos neste dispositivo 🚀</footer>
+
   
 <script>
 let dados = JSON.parse(localStorage.getItem("hubApps")) || {};
@@ -322,6 +322,7 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
 
 
 
