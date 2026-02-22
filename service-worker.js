@@ -1,4 +1,4 @@
-const CACHE_NAME = "hub-cache-v6"; // ⚠️ Sempre aumente a versão aqui
+const CACHE_NAME = "hub-cache-v7"; // ⚠️ Sempre aumente a versão aqui
 
 const urlsToCache = [
   "./",
@@ -37,6 +37,7 @@ self.addEventListener("fetch", event => {
       .catch(() => caches.match(event.request))
   );
 });
+
 
 
 
